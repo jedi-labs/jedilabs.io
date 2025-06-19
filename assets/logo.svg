@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <style>
+    .green { fill: #8DC78B; }
+    .brown { fill: #6C4E2C; }
+    .black { fill: #1B1B1B; }
+    .teal { fill: #1E7F7F; }
+    .white { fill: #FFFFFF; }
+    .font-main { font: bold 36px 'Segoe UI', sans-serif; text-anchor: middle; }
+  </style>
+
+  <!-- Ears -->
+  <path class="green" d="M50 180 Q90 120 130 160 T110 200 Q80 220 50 180"/>
+  <path class="green" d="M462 180 Q422 120 382 160 T402 200 Q432 220 462 180"/>
+
+  <!-- Head -->
+  <ellipse class="green" cx="256" cy="160" rx="100" ry="90"/>
+  <rect class="black" x="186" y="130" width="140" height="60" rx="20"/>
+  <circle cx="210" cy="160" r="8" class="white"/>
+  <circle cx="302" cy="160" r="8" class="white"/>
+
+  <!-- Antenna -->
+  <line x1="256" y1="60" x2="256" y2="100" stroke="#000" stroke-width="6" />
+  <circle cx="256" cy="50" r="10" class="green" />
+
+  <!-- Body -->
+  <rect x="186" y="230" width="140" height="120" rx="20" class="teal" />
+  <text x="256" y="305" font-size="40" class="white" text-anchor="middle">&lt;/&gt;</text>
+
+  <!-- Robe -->
+  <path class="brown" d="M130,230 Q100,300 140,380 L180,360 Q160,300 186,260 Z"/>
+  <path class="brown" d="M382,230 Q412,300 372,380 L332,360 Q352,300 326,260 Z"/>
+
+  <!-- Legs -->
+  <rect x="200" y="350" width="30" height="40" class="green" rx="8"/>
+  <rect x="282" y="350" width="30" height="40" class="green" rx="8"/>
+
+  <!-- Lightsaber -->
+  <rect x="110" y="240" width="10" height="80" class="teal" />
+  <rect x="110" y="225" width="10" height="15" class="black" />
+
+  <!-- Left Hand (holding lightsaber) -->
+  <circle cx="115" cy="215" r="12" class="green" />
+
+  <!-- Right Hand (peace sign) -->
+  <circle cx="400" cy="240" r="12" class="green" />
+  <path d="M400 230 Q410 235 405 245" stroke="#8DC78B" stroke-width="6" fill="none" />
+  <path d="M407 225 Q417 230 412 242" stroke="#8DC78B" stroke-width="6" fill="none" />
+</svg>
