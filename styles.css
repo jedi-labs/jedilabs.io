@@ -268,13 +268,16 @@ nav {
   min-height: 100vh;
   display: flex;
   align-items: center;
+  justify-content: center;
   padding: 80px 40px;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
 }
 
 .approach-inner {
-  max-width: 700px;
+  max-width: 860px;
+  width: 100%;
+  text-align: center;
 }
 
 .approach h2 {
@@ -291,8 +294,9 @@ nav {
 }
 
 .pillars {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 16px;
 }
 
@@ -322,8 +326,10 @@ nav {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
   padding: 80px 40px;
   border-top: 1px solid var(--border);
+  text-align: center;
 }
 
 .project-card {
@@ -332,6 +338,8 @@ nav {
   border-radius: var(--radius);
   padding: 36px 32px;
   max-width: 760px;
+  width: 100%;
+  text-align: left;
   transition: border-color 0.2s, background 0.2s;
 }
 
