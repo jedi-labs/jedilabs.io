@@ -162,12 +162,36 @@ nav {
   text-decoration: none;
 }
 
+.next-btn {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.next-btn:hover {
+  color: var(--accent);
+  text-decoration: none;
+}
+
 /* ============================================================
    Services
    ============================================================ */
 
 .services {
-  padding: 100px 40px;
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 80px 40px;
 }
 
 .section-title {
@@ -240,6 +264,10 @@ nav {
    ============================================================ */
 
 .approach {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
   padding: 80px 40px;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
@@ -289,7 +317,12 @@ nav {
    ============================================================ */
 
 .projects {
-  padding: 100px 40px;
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 80px 40px;
   border-top: 1px solid var(--border);
 }
 
@@ -393,7 +426,12 @@ nav {
    ============================================================ */
 
 .contact {
-  padding: 120px 40px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 40px;
   text-align: center;
 }
 
