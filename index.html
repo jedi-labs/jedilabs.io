@@ -11,13 +11,8 @@
 
 <body>
 
-  <!-- Starfield background -->
-  <div class="stars"></div>
-  <div class="shooting-star"></div>
-  <div class="shooting-star"></div>
-  <div class="shooting-star"></div>
-  <div class="shooting-star"></div>
-  <div class="shooting-star"></div>
+  <!-- Starfield canvas -->
+  <canvas id="starfield"></canvas>
 
   <!-- Nav -->
   <nav>
@@ -149,5 +144,221 @@
     <p class="footer-copy">&copy; 2026 Jedi Labs. All rights reserved.</p>
   </footer>
 
+  <script>
+  (function () {
+    const canvas = document.getElementById('starfield');
+    const ctx = canvas.getContext('2d');
+
+    let W, H;
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = document.documentElement.scrollHeight;
+    }
+    window.addEventListener('resize', () => { resize(); initStars(); });
+    resize();
+
+    // ── Stars ────────────────────────────────────────────────
+    const STAR_COUNT = 320;
+    const stars = [];
+
+    function initStars() {
+      stars.length = 0;
+      for (let i = 0; i < STAR_COUNT; i++) {
+        stars.push(makeStar());
+      }
+    }
+
+    function makeStar() {
+      const size  = Math.random() < 0.15 ? rand(1.4, 2.4) : rand(0.4, 1.2);
+      const color = pickStarColor();
+      return {
+        x:      rand(0, W),
+        y:      rand(0, H),
+        size,
+        baseAlpha: rand(0.4, 1.0),
+        alpha:  0,
+        phase:  rand(0, Math.PI * 2),
+        speed:  rand(0.3, 1.2),   // twinkle speed
+        color,
+        // cross-hair spike for bright stars
+        spike: size > 1.6,
+      };
+    }
+
+    function pickStarColor() {
+      const r = Math.random();
+      if (r < 0.55) return '#ffffff';
+      if (r < 0.70) return '#ccd8ff';  // bluish white
+      if (r < 0.82) return '#ffe8c0';  // warm yellow
+      if (r < 0.91) return '#a8cfff';  // blue
+      return '#00e5ff';                 // cyan accent (rare)
+    }
+
+    function drawStars(t) {
+      for (const s of stars) {
+        s.alpha = s.baseAlpha * (0.5 + 0.5 * Math.sin(t * s.speed + s.phase));
+        ctx.globalAlpha = s.alpha;
+
+        if (s.spike) {
+          // soft glow halo
+          const grd = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.size * 4);
+          grd.addColorStop(0,   hexAlpha(s.color, 0.6));
+          grd.addColorStop(0.4, hexAlpha(s.color, 0.15));
+          grd.addColorStop(1,   'transparent');
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.size * 4, 0, Math.PI * 2);
+          ctx.fillStyle = grd;
+          ctx.fill();
+
+          // cross spikes
+          ctx.globalAlpha = s.alpha * 0.5;
+          ctx.strokeStyle = s.color;
+          ctx.lineWidth = 0.5;
+          const len = s.size * 6;
+          ctx.beginPath();
+          ctx.moveTo(s.x - len, s.y); ctx.lineTo(s.x + len, s.y);
+          ctx.moveTo(s.x, s.y - len); ctx.lineTo(s.x, s.y + len);
+          ctx.stroke();
+          ctx.globalAlpha = s.alpha;
+        }
+
+        // core dot
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fillStyle = s.color;
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    // ── Comets ───────────────────────────────────────────────
+    const MAX_COMETS = 4;
+    const comets = [];
+
+    function spawnComet() {
+      if (comets.length >= MAX_COMETS) return;
+
+      // start from a random edge (top or left side, aimed diagonally)
+      const fromTop = Math.random() < 0.5;
+      const angle   = fromTop
+        ? rand(Math.PI * 0.1,  Math.PI * 0.45)   // downward-right
+        : rand(-Math.PI * 0.1, Math.PI * 0.2);   // rightward-down
+
+      const x = fromTop ? rand(W * 0.1, W * 0.9) : -80;
+      const y = fromTop ? -80 : rand(H * 0.05, H * 0.6);
+
+      const speed  = rand(400, 900);   // px/sec
+      const length = rand(120, 320);
+      const width  = rand(1.2, 2.8);
+      const bright = Math.random() < 0.25;  // occasional extra-bright comet
+
+      comets.push({ x, y, angle, speed, length, width, bright,
+                    dx: Math.cos(angle), dy: Math.sin(angle),
+                    alpha: 0, fadingIn: true, dead: false });
+    }
+
+    function updateComets(dt) {
+      for (const c of comets) {
+        c.x += c.dx * c.speed * dt;
+        c.y += c.dy * c.speed * dt;
+
+        if (c.fadingIn) {
+          c.alpha = Math.min(1, c.alpha + dt * 3);
+          if (c.alpha >= 1) c.fadingIn = false;
+        }
+
+        // fade out when near edge
+        const margin = 100;
+        if (c.x > W + margin || c.y > H + margin || c.x < -margin) {
+          c.alpha = Math.max(0, c.alpha - dt * 4);
+          if (c.alpha <= 0) c.dead = true;
+        }
+      }
+      // remove dead
+      for (let i = comets.length - 1; i >= 0; i--) {
+        if (comets[i].dead) comets.splice(i, 1);
+      }
+    }
+
+    function drawComets() {
+      for (const c of comets) {
+        // tail — long gradient line
+        const tx = c.x - c.dx * c.length;
+        const ty = c.y - c.dy * c.length;
+
+        const grad = ctx.createLinearGradient(tx, ty, c.x, c.y);
+        grad.addColorStop(0,    'transparent');
+        grad.addColorStop(0.6,  `rgba(180,230,255,${0.18 * c.alpha})`);
+        grad.addColorStop(0.88, `rgba(220,245,255,${0.55 * c.alpha})`);
+        grad.addColorStop(1,    `rgba(255,255,255,${c.alpha})`);
+
+        ctx.save();
+        ctx.lineWidth   = c.width;
+        ctx.strokeStyle = grad;
+        ctx.shadowColor = '#00e5ff';
+        ctx.shadowBlur  = c.bright ? 18 : 8;
+        ctx.beginPath();
+        ctx.moveTo(tx, ty);
+        ctx.lineTo(c.x, c.y);
+        ctx.stroke();
+
+        // head glow
+        const headR = c.width * (c.bright ? 5 : 3.5);
+        const headGrd = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, headR);
+        headGrd.addColorStop(0,   `rgba(255,255,255,${c.alpha})`);
+        headGrd.addColorStop(0.3, `rgba(180,240,255,${0.8 * c.alpha})`);
+        headGrd.addColorStop(1,   'transparent');
+        ctx.shadowBlur  = c.bright ? 30 : 14;
+        ctx.shadowColor = '#00e5ff';
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, headR, 0, Math.PI * 2);
+        ctx.fillStyle = headGrd;
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // ── Loop ─────────────────────────────────────────────────
+    let last = 0;
+    let nextComet = rand(1.5, 4);
+
+    function loop(ts) {
+      const t  = ts / 1000;
+      const dt = Math.min(t - last, 0.05);
+      last = t;
+
+      ctx.clearRect(0, 0, W, H);
+
+      drawStars(t);
+
+      nextComet -= dt;
+      if (nextComet <= 0) {
+        spawnComet();
+        nextComet = rand(2.5, 7);
+      }
+      updateComets(dt);
+      drawComets();
+
+      requestAnimationFrame(loop);
+    }
+
+    initStars();
+    requestAnimationFrame(loop);
+
+    // ── Helpers ──────────────────────────────────────────────
+    function rand(a, b) { return a + Math.random() * (b - a); }
+
+    function hexAlpha(hex, a) {
+      const r = parseInt(hex.slice(1,3),16);
+      const g = parseInt(hex.slice(3,5),16);
+      const b = parseInt(hex.slice(5,7),16);
+      return `rgba(${r},${g},${b},${a})`;
+    }
+
+    // re-size canvas height when page content changes
+    const ro = new ResizeObserver(() => { resize(); initStars(); });
+    ro.observe(document.body);
+  })();
+  </script>
 </body>
 </html>
